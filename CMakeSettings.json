@@ -1,0 +1,29 @@
+{
+    "environments": [
+        {
+            "Qt5_DIR": "C:/Qt/5.15.0/msvc2019_64/lib/cmake/Qt5"
+        }
+    ],
+    "configurations": [
+        {
+            "name": "VsDev-Debug",
+            "generator": "Ninja",
+            "configurationType": "Debug",
+            "buildRoot": "${workspaceRoot}\\out\\build",
+            "installRoot": "${workspaceRoot}\\out\\install",
+            "inheritEnvironments": [
+                "clang_cl_x64"
+            ]
+        },
+        {
+            "name": "VsDev-Release",
+            "generator": "Ninja",
+            "configurationType": "Release",
+            "buildRoot": "${workspaceRoot}\\out\\build",
+            "installRoot": "${workspaceRoot}\\out\\install",
+            "inheritEnvironments": [
+                "clang_cl_x64"
+            ]
+        }
+    ]
+}

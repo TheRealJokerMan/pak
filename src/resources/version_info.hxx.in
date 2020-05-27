@@ -1,0 +1,18 @@
+//
+// Copyright (c) 2020 Jamie Kenyon. All Rights Reserved.
+//
+
+#include <cstdint>
+
+namespace pak
+{
+    namespace resources
+    {
+        static char kProjectName[] = "@PROJECT_NAME@";
+        static char kProjectVersion[] = "@PROJECT_VERSION_MAJOR@.@PROJECT_VERSION_MINOR@.@PROJECT_VERSION_PATCH@";
+
+        static uint32_t kProjectVersionMajor = @PROJECT_VERSION_MAJOR@;
+        static uint32_t kProjectVersionMinor = @PROJECT_VERSION_MINOR@;
+        static uint32_t kProjectVersionPatch = @PROJECT_VERSION_PATCH@;
+    } // namespace resources
+} // namespace pak
