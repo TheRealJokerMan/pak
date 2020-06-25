@@ -20,19 +20,33 @@ namespace pak
     public:
         MainWindow();
 
+        /// Document was modified.
+        /// \param isDirty true if the document was modified; false otherwise.
+        void DocumentWasModified(bool isDirty);
+
+    protected:
+        void closeEvent(QCloseEvent* event) override;
+
     private:
         void createCentralWidget(int32_t windowWidth, int32_t windowHeight);
         void createMenu();
         void createStatusBar();
         
         void loadFile(QString fileName);
+        bool maybeSave();
+        
+        void onFileClose();
+        void onFileNew();
         void onFileOpen();
+        bool onFileSave();
         void onHelpAbout();
         
         void setupUi();
 
     private:
         Browser* mBrowserWidget = nullptr;
+        bool mDocumentWasModified = false;
+        QAction* mFileSaveAction = nullptr;
         QWidget* mViewportWidget = nullptr;
     };
 } // namespace pak

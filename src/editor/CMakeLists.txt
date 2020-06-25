@@ -17,6 +17,7 @@ add_executable(pak_editor WIN32
 
  qt5_add_resources_custom(pak_editor
     "qresources/qdarkstyle/style.qrc"
+    "qresources/resources.qrc"
 )
 
 qt5_wrap_ui_custom(pak_editor

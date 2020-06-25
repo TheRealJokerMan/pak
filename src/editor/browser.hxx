@@ -20,12 +20,24 @@ namespace pak
         /// \param parent The parent of this widget.
         BrowserTree(QWidget* parent);
 
+        /// Delete the current item.
+        QAction* GetDeleteAction()
+        {
+            return mDeleteAction;
+        }
+
     protected:
         bool dropMimeData(QTreeWidgetItem* parent, int index, QMimeData const* data, Qt::DropAction action) override;
         QStringList mimeTypes() const override;
-    
+
     private:
         void onDeleteItem();
+        void onSelectionChanged();
+
+        void notifyDirtyDocument();
+
+    private:
+        QAction* mDeleteAction = nullptr;
     };
     
     /// A Browser widget.
@@ -35,6 +47,12 @@ namespace pak
         /// Constructor.
         /// \param parent The parent of this widget.
         Browser(QWidget* parent);
+
+        /// Delete the current item.
+        QAction* GetDeleteAction()
+        {
+            return mTreeWidget->GetDeleteAction();
+        }
 
         /// Initialise the widget.
         /// \param fileName Path of the PAK file.

@@ -46,6 +46,9 @@ namespace pak
         /// \param entry The entry to append to the file.
         void AddEntry(PakEntry const& entry);
 
+        /// Clear all entries.
+        void Clear();
+
         /// Entries accessor.
         /// \return The entries in the PAK file.
         auto const& GetEntries() const

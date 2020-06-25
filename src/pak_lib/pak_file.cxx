@@ -56,6 +56,11 @@ namespace pak
         mEntries.push_back(entry);
     }
 
+    void PakFile::Clear()
+    {
+        mEntries.clear();
+    }
+
     bool PakFile::Read(std::filesystem::path const& path)
     {
         std::vector<uint8_t> contents;

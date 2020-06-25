@@ -20,15 +20,15 @@ namespace pak
     {
         QApplication::setOrganizationName("Jamie Kenyon");
         QApplication::setOrganizationDomain("jamiekenyon.io");
-        QApplication::setApplicationName(QString::fromLocal8Bit(resources::kProjectName));
-        QApplication::setApplicationVersion(QString::fromLocal8Bit(resources::kProjectVersion));
+        QApplication::setApplicationName(QString::fromUtf8(resources::kProjectName) + QString::fromUtf8(" Editor"));
+        QApplication::setApplicationVersion(QString::fromUtf8(resources::kProjectVersion));
 
         setTheme();
     }
 
     void Application::setTheme()
     {
-        setStyle(QString::fromLocal8Bit("Fusion"));
+        setStyle(QString::fromUtf8("Fusion"));
 
         QFile f(":qdarkstyle/style.qss");
 

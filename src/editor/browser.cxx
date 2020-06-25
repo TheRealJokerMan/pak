@@ -4,10 +4,13 @@
 
 #include "application.hxx"
 #include "browser.hxx"
+#include "mainWindow.hxx"
 #include <pak_lib/pak_file.hxx>
 
 WARNINGS_DISABLE
 #include <QDir>
+#include <QMainWindow>
+#include <QMenuBar>
 #include <QMimeData>
 #include <QShortcut>
 #include <QTreeWidget>
@@ -18,8 +21,14 @@ namespace pak
 {
     BrowserTree::BrowserTree(QWidget* parent) : QTreeWidget(parent)
     {
-        QShortcut* shortcut = new QShortcut(QKeySequence(Qt::Key_Delete), this);
-        connect(shortcut, &QShortcut::activated, this, &BrowserTree::onDeleteItem);
+        auto const icon = QIcon::fromTheme("edit-delete", QIcon(":/images/delete.png"));
+        mDeleteAction = new QAction(icon, QString::fromUtf8("&Delete"), this);
+        mDeleteAction->connect(mDeleteAction, &QAction::triggered, this, &BrowserTree::onDeleteItem);
+        mDeleteAction->setShortcut(QKeySequence(Qt::Key_Delete));
+        mDeleteAction->setStatusTip(QString::fromUtf8("Delete the current item in the PAK file..."));
+        mDeleteAction->setEnabled(false);
+
+        connect(this, &QTreeWidget::itemSelectionChanged, this, &BrowserTree::onSelectionChanged);
 
         QTreeWidget::setAcceptDrops(true);
         QTreeWidget::setDropIndicatorShown(true);
@@ -47,6 +56,8 @@ namespace pak
             }
         }
 
+        notifyDirtyDocument();
+
         return true;
     }
 
@@ -54,29 +65,67 @@ namespace pak
     {
         return QStringList() << "text/uri-list";
     }
-    
+
     void BrowserTree::onDeleteItem()
     {
         if (QTreeWidget::currentItem())
         {
             delete QTreeWidget::currentItem();
+
+            notifyDirtyDocument();
         }
     }
 
-    Browser::Browser(QWidget* parent) : QDockWidget(QString::fromLocal8Bit("Browser"), parent)
+    void BrowserTree::onSelectionChanged()
     {
+        auto selectedItems = QTreeWidget::selectedItems();
+        mDeleteAction->setEnabled(!selectedItems.empty());
     }
 
-    void Browser::Initialise([[maybe_unused]] QString fileName)
+    void BrowserTree::notifyDirtyDocument()
     {
-        if (!mTreeWidget)
+        foreach (QWidget* w, QApplication::topLevelWidgets())
         {
-            mTreeWidget = new BrowserTree(this);
-            QDockWidget::setWidget(mTreeWidget);
-        }
+            if (QMainWindow* window = qobject_cast<QMainWindow*>(w))
+            {
+                window->setWindowModified(true);
 
-        mTreeWidget->clear();
+                auto mainWindow = reinterpret_cast<MainWindow*>(window);
+                if (mainWindow)
+                {
+                    mainWindow->DocumentWasModified(true);
+                }
+            }
+        }
+    }
+
+    Browser::Browser(QWidget* parent) : QDockWidget(QString::fromUtf8("Browser"), parent)
+    {
+        mTreeWidget = new BrowserTree(this);
+        QDockWidget::setWidget(mTreeWidget);
+
         mTreeWidget->setHeaderHidden(true);
+    }
+
+    static QString getTooltip(PakEntry const& entry)
+    {
+        QString result = QString::fromStdString(entry.GetName());
+
+        result += QString::fromUtf8(": ");
+        result += QString::number(entry.GetContents().size());
+        result += QString::fromUtf8(" bytes.");
+
+        return result;
+    }
+
+    void Browser::Initialise(QString fileName)
+    {
+        mTreeWidget->clear();
+
+        if (fileName.isEmpty())
+        {
+            return;
+        }
 
         PakFile& pakFile = reinterpret_cast<Application*>(QApplication::instance())->GetPakFile();
         for (auto const& entry : pakFile.GetEntries())
@@ -99,6 +148,7 @@ namespace pak
             {
                 treeWidgetItem = new QTreeWidgetItem;
                 treeWidgetItem->setText(0, tokens.at(0));
+                treeWidgetItem->setStatusTip(0, getTooltip(entry));
                 mTreeWidget->addTopLevelItem(treeWidgetItem);
             }
 
@@ -118,6 +168,7 @@ namespace pak
                 {
                     QTreeWidgetItem* newTreeWidgetItem = new QTreeWidgetItem;
                     newTreeWidgetItem->setText(0, tokens.at(j));
+                    newTreeWidgetItem->setStatusTip(0, getTooltip(entry));
                     treeWidgetItem->addChild(newTreeWidgetItem);
                     treeWidgetItem = newTreeWidgetItem;
                 }
